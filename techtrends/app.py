@@ -3,10 +3,15 @@ import sqlite3
 from flask import Flask, jsonify, json, render_template, request, url_for, redirect, flash
 from werkzeug.exceptions import abort
 
+
+connection_count = 0
+
 # Function to get a database connection.
 # This function connects to database with the name `database.db`
 def get_db_connection():
+    global connection_count
     connection = sqlite3.connect('database.db')
+    connection_count += 1
     connection.row_factory = sqlite3.Row
     return connection
 
@@ -68,6 +73,16 @@ def create():
 @app.route('/healthz')
 def health_check():
     return jsonify({'result': 'OK - healthy'})
+
+@app.route('/metrics')
+def metrics():
+    conn = get_db_connection()
+    cur = conn.cursor()
+    post_count = cur.execute('SELECT COUNT(*) FROM posts').fetchone()[0]
+    return jsonify({
+        'db_connection_count': connection_count,
+        'post_count': post_count,
+    })
 
 # start the application on port 3111
 if __name__ == "__main__":
