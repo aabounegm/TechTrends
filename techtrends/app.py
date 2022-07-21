@@ -78,7 +78,13 @@ def create():
 
 @app.route('/healthz')
 def health_check():
-    return jsonify({'result': 'OK - healthy'})
+    try:
+        connection = get_db_connection()
+        connection.execute('SELECT * FROM posts').fetchone()
+        connection.close()
+        return jsonify({'result': 'OK - healthy'})
+    except:
+        return jsonify({'result': 'ERROR - unhealthy'}), 500
 
 @app.route('/metrics')
 def metrics():
