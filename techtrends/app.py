@@ -43,7 +43,7 @@ def index():
 def post(post_id):
     post = get_post(post_id)
     if post is None:
-      logging.info(f'Cannot find an article with ID {post_id}')
+      logging.error(f'Cannot find an article with ID {post_id}')
       return render_template('404.html'), 404
     else:
       logging.info(f'Retrieved article "{post["title"]}"')
